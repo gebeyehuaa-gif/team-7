@@ -1,64 +1,76 @@
+/* Styles the webpage*/
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background-color: #f4f6f9;
+font-family: Arial, sans-serif;
+margin: 0;
+background-color: #f4f6f9;
 }
+/*styles the header*/
 header {
-    background-color: #003366;
-    color: white;
-    padding: 20px;
-    text-align: center;
+background-color: #003366;
+color: white;
+padding: 20px;
+text-align: center;
 }
+/*navigation bar styling*/
 nav {
-    background-color: #0055a5;
-    padding: 12px;
-    text-align: center;
+background-color: #0055a5;
+padding: 12px;
+text-align: center;
 }
+/* styles the links in teh navigation bar*/
 nav a {
-    color: white;
-    text-decoration: none;
-    margin: 15px;
-    font-weight: bold;
+color: white;
+text-decoration: none;
+margin: 15px;
+font-weight: bold;
 }
+/* styles the main container*/
 .container {
-    width: 80%;
-    margin: 30px auto;
+width: 80%;
+margin: 30px auto;
 }
+/*styles the login information box section*/
 .login-box {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+background: white;
+padding: 25px;
+border-radius: 8px;
+box-shadow: 0 2px 10px rgba(0,0,0,.1);
 }
+/*styles the user input fields*/
 input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    box-sizing: border-box;
+width: 100%;
+padding: 10px;
+margin-top: 5px;
+margin-bottom: 15px;
+box-sizing: border-box;
 }
+/*styles the buttons*/
 button {
-    background-color: #003366;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    cursor: pointer;
+background-color: #003366;
+color: white;
+border: none;
+padding: 12px 20px;
+cursor: pointer;
 }
+/*when the user hovers over the login button it changes the color*/
 button:hover {
-    background-color: #0055a5;
+background-color: #0055a5;
 }
+/*styles the tables*/
 table {
-    width: 100%;
-    margin-top: 25px;
-    border-collapse: collapse;
-    background: white;
+width: 100%;
+margin-top: 25px;
+border-collapse: collapse;
+background: white;
 }
+/*styles the headers of the tables*/
 th {
-    background-color: #003366;
-    color: white;
+background-color: #003366;
+color: white;
 }
+/* styles the table cells*/
 th, td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
+padding: 12px;
+border: 1px solid #ddd;
+text-align: center;
 }
