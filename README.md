@@ -9,6 +9,8 @@ The course search option gives the option to search for courses by department, i
 
 Student Registration Screen - Done by Michael
 The student registration screen shows student login option, see enrolled sessions, and also register for new sessions.
+My student registration screen allows students to log in, view their currently enrolled courses, and register for new course sessions while checking for duplicate registrations and full classes.
+
 
 Instructor Schedule Screen - Done by Micah
 The instructor schedule screen allows instructors to log in and view their course schedule which includes the course, when the course meets day and time, and what room it is in or if its online.
@@ -25,4 +27,4 @@ For the html coding I mainly used input fields, buttons, containers, hyperlinks,
 I utilised HTML to create my home screen, it was a challenge as I've never coded in HTML before or have any UI/UX design experience so I poured a lot of research and talked with my group mate, Micah, on how to go about things. I used some elements like head, meta, title, style, and div. With some techniques of CSS styling and link based navigation to be able to connect each screen. Because of my beginner level in UI/UX design I ran into lots of problems finalizing the home screen like the colours not matching or the linking not working but thankfully my groupmate, Micah, helped me through the process to put out the final result. - Arsema Gebeyehu
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+For my part, I worked on the Student Registration screen. The page lets a student log in, see the classes they are already enrolled in, and register for another course session. I used input fields, buttons, a dropdown menu, tables, headings, containers, and navigation links to build the page. I also added simple validation so a student cannot register for the same class twice or sign up for a class that is already full. I tried to keep the page consistent with the rest of the project by using the same colors, table style, buttons, navigation bar, and overall layout. - Michael Afriyie
