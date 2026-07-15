@@ -57,8 +57,6 @@
 </div>
 </div>
 <div class="button-row">
-<button type="button" id="downloadBtn">Download CSV</button>
-<button type="button" class="secondary" id="printBtn">Print Report</button>
 </div>
 </div>
 <!--report summary information-->
@@ -223,22 +221,6 @@ noResults.style.display = "block";
 noResults.style.display = "none";
 }
 }
-
-function downloadCsv() {
-const filteredSections = getFilteredSections();
-
-const headers = [
-"Course",
-"Title",
-"Instructor",
-"Department",
-"Modality",
-"Enrollment",
-"Capacity",
-"Open Seats",
-"Status"
-];
-
 const rows = filteredSections.map(function(section) {
 const openSeats = section.capacity - section.enrollment;
 let status = "Open";
@@ -281,7 +263,6 @@ URL.revokeObjectURL(link.href);
 departmentFilter.addEventListener("change", renderReport);
 modalityFilter.addEventListener("change", renderReport);
 searchInput.addEventListener("input", renderReport);
-document.getElementById("downloadBtn").addEventListener("click", downloadCsv);
 document.getElementById("printBtn").addEventListener("click", function() {
 window.print();
 });
