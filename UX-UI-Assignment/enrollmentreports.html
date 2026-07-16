@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enrollment Report</title>
+<!--links the page with styles.css-->
+<link rel="stylesheet" href="styles updated.css">
+</head>
+<body>
+<!--page header for the enrollment report-->
+<header>
+<h1>Course Portal</h1>
+</header>
+<!--hyperlinks for user to click on to go to other pages-->
+<nav>
+<a href="Homes-screen.html">Home</a>
+<a href="coursesearch.html">Course Search</a>
+<a href="studentregistration%20updated.html">Student Registration</a>
+<a href="instructorschedule.html">Instructor Schedule</a>
+<a href="sessionenrollment.html">Enrollment</a>
+<a href="enrollmentreport.html">Reports</a>
+</nav>
+<!--main container-->
+<div class="container">
+<!--enrollment report information-->
+<div class="login-box">
+<!--displays the page title-->
+<h2>Enrollment Report</h2>
+<!--shows that only authorized users are allowed to access this page-->
+<p><strong>Authorized Registrar Users Only</strong></p>
+<p>Use the report below to review current enrollment totals, course capacity, and available seats.</p>
+</div>
+<!--report filters-->
+<div class="panel">
+<div class="form-row">
+<div>
+<label for="departmentFilter">Department</label>
+<select id="departmentFilter">
+<option value="all">All Departments</option>
+<option value="Information Systems">Information Systems</option>
+<option value="Marketing">Marketing</option>
+</select>
+</div>
+<div>
+<label for="modalityFilter">Modality</label>
+<select id="modalityFilter">
+<option value="all">All Modalities</option>
+<option value="In Person">In Person</option>
+<option value="Hybrid">Hybrid</option>
+<option value="Online">Online</option>
+</select>
+</div>
+<div>
+<label for="searchInput">Search</label>
+<input id="searchInput" type="text" placeholder="Course, title, or instructor">
+</div>
+</div>
+<div class="button-row">
+<button type="button" id="downloadBtn">Download CSV</button>
+<button type="button" class="secondary" id="printBtn">Print Report</button>
+</div>
+</div>
+<!--report summary information-->
+<div class="student-summary">
+<div class="summary-item">
+<span class="summary-label">Sections Shown</span>
+<span class="summary-value" id="sectionsShown">0</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">Total Enrollment</span>
+<span class="summary-value" id="totalEnrollment">0</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">Total Capacity</span>
+<span class="summary-value" id="totalCapacity">0</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">Remaining Seats</span>
+<span class="summary-value" id="remainingSeats">0</span>
+</div>
+</div>
+<!--Table showing enrollment report information-->
+<table id="reportTable">
+<!--The table headings-->
+<thead>
+<tr>
+<th>Course</th>
+<th>Title</th>
+<th>Instructor</th>
+<th>Department</th>
+<th>Modality</th>
+<th>Enrollment</th>
+<th>Capacity</th>
+<th>Open Seats</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p id="noResults" class="message error">No course sections match the selected filters.</p>
+</div>
+
+<script>
+const sections = [
+{
+course: "INFO 465",
+title: "Projects in Information Systems",
+instructor: "Professor McGarry",
+department: "Information Systems",
+modality: "In Person",
+enrollment: 24,
+capacity: 30
+},
+{
+course: "INFO 350",
+title: "Business Systems Analysis",
+instructor: "Marcus Reed",
+department: "Information Systems",
+modality: "Hybrid",
+enrollment: 22,
+capacity: 25
+},
+{
+course: "INFO 320",
+title: "Cybersecurity Fundamentals",
+instructor: "Priya Shah",
+department: "Information Systems",
+modality: "Online",
+enrollment: 38,
+capacity: 40
+},
+{
+course: "MKTG 302",
+title: "Consumer Behavior",
+instructor: "Danielle Brooks",
+department: "Marketing",
+modality: "In Person",
+enrollment: 35,
+capacity: 35
+},
+{
+course: "MKTG 410",
+title: "Digital Marketing Strategy",
+instructor: "Victor Santos",
+department: "Marketing",
+modality: "Hybrid",
+enrollment: 26,
+capacity: 28
+}
+];
+
+const departmentFilter = document.getElementById("departmentFilter");
+const modalityFilter = document.getElementById("modalityFilter");
+const searchInput = document.getElementById("searchInput");
+const tableBody = document.querySelector("#reportTable tbody");
+const noResults = document.getElementById("noResults");
+
+function getFilteredSections() {
+const department = departmentFilter.value;
+const modality = modalityFilter.value;
+const search = searchInput.value.trim().toLowerCase();
+
+return sections.filter(function(section) {
+const matchesDepartment = department === "all" || section.department === department;
+const matchesModality = modality === "all" || section.modality === modality;
+const searchableText = (section.course + " " + section.title + " " + section.instructor).toLowerCase();
+const matchesSearch = search === "" || searchableText.includes(search);
+
+return matchesDepartment && matchesModality && matchesSearch;
+});
+}
+
+function renderReport() {
+const filteredSections = getFilteredSections();
+
+tableBody.innerHTML = "";
+
+filteredSections.forEach(function(section) {
+const openSeats = section.capacity - section.enrollment;
+let status = "Open";
+
+if (openSeats === 0) {
+status = "Full";
+} else if (openSeats <= 5) {
+status = "Nearly Full";
+}
+
+const row = document.createElement("tr");
+
+row.innerHTML = `
+<td>${section.course}</td>
+<td>${section.title}</td>
+<td>${section.instructor}</td>
+<td>${section.department}</td>
+<td>${section.modality}</td>
+<td>${section.enrollment}</td>
+<td>${section.capacity}</td>
+<td>${openSeats}</td>
+<td><span class="status ${status === "Open" ? "enrolled" : "waitlist"}">${status}</span></td>
+`;
+
+tableBody.appendChild(row);
+});
+
+const totalEnrollment = filteredSections.reduce(function(total, section) {
+return total + section.enrollment;
+}, 0);
+
+const totalCapacity = filteredSections.reduce(function(total, section) {
+return total + section.capacity;
+}, 0);
+
+document.getElementById("sectionsShown").textContent = filteredSections.length;
+document.getElementById("totalEnrollment").textContent = totalEnrollment;
+document.getElementById("totalCapacity").textContent = totalCapacity;
+document.getElementById("remainingSeats").textContent = totalCapacity - totalEnrollment;
+
+if (filteredSections.length === 0) {
+noResults.style.display = "block";
+} else {
+noResults.style.display = "none";
+}
+}
+
+function downloadCsv() {
+const filteredSections = getFilteredSections();
+
+const headers = [
+"Course",
+"Title",
+"Instructor",
+"Department",
+"Modality",
+"Enrollment",
+"Capacity",
+"Open Seats",
+"Status"
+];
+  
+const rows = filteredSections.map(function(section) {
+const openSeats = section.capacity - section.enrollment;
+let status = "Open";
+
+if (openSeats === 0) {
+status = "Full";
+} else if (openSeats <= 5) {
+status = "Nearly Full";
+}
+
+return [
+section.course,
+section.title,
+section.instructor,
+section.department,
+section.modality,
+section.enrollment,
+section.capacity,
+openSeats,
+status
+];
+});
+
+const csv = [headers].concat(rows).map(function(row) {
+return row.map(function(value) {
+return '"' + String(value).replaceAll('"', '""') + '"';
+}).join(",");
+}).join("\n");
+
+const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+const link = document.createElement("a");
+
+link.href = URL.createObjectURL(blob);
+link.download = "enrollment-report.csv";
+link.click();
+
+URL.revokeObjectURL(link.href);
+}
+
+departmentFilter.addEventListener("change", renderReport);
+modalityFilter.addEventListener("change", renderReport);
+searchInput.addEventListener("input", renderReport);
+document.getElementById("downloadBtn").addEventListener("click", downloadCsv);
+document.getElementById("printBtn").addEventListener("click", function() {
+window.print();
+});
+
+renderReport();
+</script>
+
+</body>
+</html>
