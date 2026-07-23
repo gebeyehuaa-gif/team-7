@@ -1,117 +1,89 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login — Course Portal</title>
-  <style>
-    :root {
-      --bg: #f4f6f9;
-      --card: #ffffff;
-      --accent: #003366;
-      --secondary: #0055a5;
-      --muted: #666666;
-      --border: #ddd;
-    }
-
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: var(--bg);
-      color: #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-      padding: 28px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .logo {
-      width: 52px;
-      height: 52px;
-      border-radius: 10px;
-      background: var(--accent);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-    }
-
-    h1 { margin: 0; font-size: 1.3rem; color: var(--accent); }
-    p { margin: 6px 0 20px; color: var(--muted); }
-
-    form { display: flex; flex-direction: column; gap: 12px; }
-    label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; color: #444; }
-    input {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.95rem;
-    }
-
-    .btn {
-      appearance: none;
-      border: 0;
-      padding: 12px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      color: white;
-      background: var(--accent);
-      text-decoration: none;
-      text-align: center;
-    }
-
-    .btn:hover { background: var(--secondary); }
-
-    .muted-link {
-      color: var(--muted);
-      text-decoration: underline;
-      font-size: 0.95rem;
-      margin-top: 8px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Portal - Login</title>
+    <link rel="stylesheet" href="styles updated.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f6f9;
+        }
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .login-header h2 {
+            color: #003366;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-  <main class="card">
-    <div class="brand">
-      <div class="logo">CP</div>
-      <div>
-        <h1>Course Portal Login</h1>
-      </div>
+
+<div class="login-card">
+    <div class="login-header">
+        <div style="background:#003366; color:white; width:50px; height:50px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem;">CP</div>
+        <h2>Course Portal Login</h2>
+        <p style="color:#666; font-size:0.9rem;">Sign in to access your courses, registration, and schedules.</p>
     </div>
 
-    <p>Sign in to access your courses, registration, and schedules.</p>
+    <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="student@courseportal.edu" required>
 
-    <form action="Homes-screen.html" method="get">
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" placeholder="student@school.edu" required />
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
 
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="Enter your password" required />
-
-      <button class="btn" type="submit">Sign In</button>
+        <button type="submit" style="width: 100%; margin-top: 10px;">Sign In</button>
+        <div id="loginMessage" class="message"></div>
     </form>
+</div>
 
-    <a class="muted-link" href="Homes-screen.html">Back to home</a>
-  </main>
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const msg = document.getElementById("loginMessage");
+
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                localStorage.setItem('currentUser', JSON.stringify(data.user));
+                window.location.href = 'Homes-screen.html';
+            } else {
+                msg.textContent = data.error || "Login failed.";
+                msg.className = "message error";
+                msg.style.display = "block";
+            }
+        } catch (err) {
+            console.error(err);
+            msg.textContent = "Unable to connect to the server.";
+            msg.className = "message error";
+            msg.style.display = "block";
+        }
+    });
+</script>
+
 </body>
 </html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Schedule — Course Portal</title>
+
+    <!-- ACCESS CONTROL GUARD: Restricted to Students (Role 1) only -->
+    <script>
+        (function() {
+            const rawUser = localStorage.getItem('currentUser');
+            if (!rawUser) { window.location.href = 'login.html'; return; }
+            const user = JSON.parse(rawUser);
+            const activeUser = user.user || user;
+            const roleId = Number(activeUser.roleId || activeUser.role_id);
+            if (roleId !== 1) window.location.href = 'Homes-screen.html';
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --accent: #003366;
+            --secondary: #0055a5;
+            --muted: #666666;
+            --border: #ddd;
+            --danger: #d9534f;
+            --danger-hover: #c9302c;
+            --error-bg: #fde8e8;
+            --error-text: #9b1c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg);
+            color: #333;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Brand & Header */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .brand-text p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover {
+            background: #f0f4f8;
+            color: var(--accent);
+        }
+
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .role-student, .role-instructor, .role-admin {
+            display: none; /* Controlled via JS */
+        }
+
+        /* Card Container */
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 16px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* Summary Header Grid */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .summary-item {
+            color: var(--muted);
+        }
+
+        .summary-item strong {
+            color: #333;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--accent);
+            font-weight: 700;
+            background: #f9fafb;
+        }
+
+        .btn-drop {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .btn-drop:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: var(--muted);
+            padding: 24px 16px;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <!-- Brand Header -->
+        <div class="brand">
+            <div class="logo">CP</div>
+            <div class="brand-text">
+                <h1>My Enrolled Schedule</h1>
+                <p>View your registered courses and manage schedule details</p>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav>
+            <a href="Homes-screen.html">Home</a>
+            <a href="coursesearch.html">Course Catalog</a>
+            <a href="studentregistration.html" class="role-student">Register & Overrides</a>
+            <a href="mycourses.html" class="role-student active">My Schedule</a>
+        </nav>
+
+        <!-- Schedule Meta Card -->
+        <section class="card">
+            <h2>Schedule Summary</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    Student: <strong id="studentNameDisplay">Loading...</strong>
+                </div>
+                <div class="summary-item">
+                    Enrolled Courses: <strong id="courseCount">0</strong>
+                </div>
+                <div class="summary-item">
+                    Total Credits: <strong id="creditTotal">0</strong>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Table Card -->
+        <section class="card">
+            <h2>Enrolled Classes</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Title</th>
+                        <th>Credits</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="myCoursesBody">
+                    <tr>
+                        <td colspan="4" class="placeholder-text">Loading schedule...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <span id="userInfo">Checking active session...</span>
+        </footer>
+    </main>
+
+    <script>
+        // Extract active user details
+        const rawUser = localStorage.getItem('currentUser');
+        const currentUser = rawUser ? JSON.parse(rawUser) : {};
+        const activeUserObj = currentUser.user || currentUser;
+        const studentId = activeUserObj.userId || activeUserObj.user_id || activeUserObj.id;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            // Un-hide student navigation items
+            document.querySelectorAll('.role-student').forEach(el => el.style.display = 'inline-block');
+
+            // Set up student profile info and user footer
+            setupHeaderAndFooter();
+
+            // Load enrolled schedule
+            await loadMyCourses();
+        });
+
+        function setupHeaderAndFooter() {
+            const nameEl = document.getElementById("studentNameDisplay");
+            
+            if (activeUserObj.first_name) {
+                nameEl.textContent = `${activeUserObj.first_name} ${activeUserObj.last_name || ''}`;
+            } else if (activeUserObj.name) {
+                nameEl.textContent = activeUserObj.name;
+            } else {
+                nameEl.textContent = "Active Student";
+            }
+
+            // Configure footer user information
+            const userInfoEl = document.getElementById('userInfo');
+            const userEmail = activeUserObj.email || 'Active Session';
+            userInfoEl.innerHTML = `Signed in as: <strong>${userEmail}</strong> (Student) — <a style="color:var(--muted);text-decoration:underline;cursor:pointer" id="logoutBtn">Sign out</a>`;
+
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        }
+
+        async function loadMyCourses() {
+            const tbody = document.getElementById("myCoursesBody");
+            const creditTotalEl = document.getElementById("creditTotal");
+            const courseCountEl = document.getElementById("courseCount");
+
+            try {
+                const res = await fetch(`/api/student/courses/${studentId}`);
+                if (!res.ok) throw new Error("Failed to load schedule");
+
+                const courses = await res.json();
+                
+                if (!courses || !courses.length) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text">You have not enrolled in any courses yet.</td></tr>`;
+                    creditTotalEl.textContent = "0";
+                    courseCountEl.textContent = "0";
+                    return;
+                }
+
+                let totalCredits = 0;
+                tbody.innerHTML = courses.map(c => {
+                    const credits = Number(c.credits) || 0;
+                    totalCredits += credits;
+                    const courseId = c.course_id || c.id;
+
+                    return `
+                        <tr>
+                            <td><strong>${c.course_code}</strong></td>
+                            <td>${c.course_name}</td>
+                            <td>${credits}</td>
+                            <td>
+                                <button class="btn-drop" onclick="drop('${courseId}')">Drop Course</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                creditTotalEl.textContent = totalCredits;
+                courseCountEl.textContent = courses.length;
+
+            } catch (err) {
+                console.error("Error loading courses:", err);
+                tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text" style="color: var(--error-text);">Failed to load schedule. Please try again.</td></tr>`;
+            }
+        }
+
+        async function drop(courseId) {
+            if (!confirm("Are you sure you want to drop this course from your schedule?")) return;
+
+            try {
+                const res = await fetch(`/api/register/${studentId}/${courseId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    await loadMyCourses();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to drop course.");
+                }
+            } catch (err) {
+                console.error("Error dropping course:", err);
+                alert("Network error. Unable to drop course.");
+            }
+        }
+    </script>
+</body>
+</html>

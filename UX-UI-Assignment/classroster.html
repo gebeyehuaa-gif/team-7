@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Roster — Course Portal</title>
+
+    <!-- ACCESS CONTROL GUARD: Restricted to Instructors (Role 2) only -->
+    <script>
+        (function() {
+            const rawUser = localStorage.getItem('currentUser');
+            if (!rawUser) { window.location.href = 'login.html'; return; }
+            const user = JSON.parse(rawUser);
+            const activeUser = user.user || user;
+            const roleId = Number(activeUser.roleId || activeUser.role_id);
+            if (roleId !== 2) window.location.href = 'Homes-screen.html';
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --accent: #003366;
+            --secondary: #0055a5;
+            --muted: #666666;
+            --border: #ddd;
+            --success-bg: #def7ec;
+            --success-text: #03543f;
+            --error-bg: #fde8e8;
+            --error-text: #9b1c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg);
+            color: #333;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Brand & Header */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .brand-text p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover {
+            background: #f0f4f8;
+            color: var(--accent);
+        }
+
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .role-student, .role-instructor, .role-admin {
+            display: none; /* Controlled via JS */
+        }
+
+        /* Card Container */
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 16px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* Form & Search Group */
+        .search-group {
+            display: flex;
+            gap: 12px;
+            max-width: 500px;
+            align-items: flex-end;
+        }
+
+        .input-wrap {
+            flex: 1;
+        }
+
+        .input-wrap label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .input-wrap input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            background: white;
+        }
+
+        .input-wrap input:focus {
+            border-color: var(--secondary);
+        }
+
+        .btn-primary {
+            appearance: none;
+            border: 0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            background: var(--accent);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 0.95rem;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--accent);
+            font-weight: 700;
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: var(--muted);
+            padding: 24px 16px;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <!-- Brand Header -->
+        <div class="brand">
+            <div class="logo">CP</div>
+            <div class="brand-text">
+                <h1>Class Roster</h1>
+                <p>Lookup enrolled student details by course section</p>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav>
+            <a href="Homes-screen.html">Home</a>
+            <a href="coursesearch.html">Course Catalog</a>
+            <a href="instructorschedule.html" class="role-instructor">Instructor Schedule</a>
+            <a href="classroster.html" class="role-instructor active">Class Roster</a>
+        </nav>
+
+        <!-- Search Card -->
+        <section class="card">
+            <h2>Course Roster Search</h2>
+            <div class="search-group">
+                <div class="input-wrap">
+                    <label for="sectionId">Enter Section ID</label>
+                    <input type="text" id="sectionId" placeholder="e.g. 1, 101, 204">
+                </div>
+                <button id="searchBtn" class="btn-primary">Load Roster</button>
+            </div>
+        </section>
+
+        <!-- Results Card -->
+        <section class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="margin: 0;">Enrolled Students</h2>
+                <span id="rosterCount" style="color: var(--muted); font-size: 0.85rem; font-weight: 600;"></span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="rosterBody">
+                    <tr>
+                        <td colspan="4" class="placeholder-text">Enter a Section ID above to display the roster.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <span id="userInfo">Checking active session...</span>
+        </footer>
+    </main>
+
+    <script>
+        const rawUser = localStorage.getItem('currentUser');
+        const currentUser = rawUser ? JSON.parse(rawUser) : {};
+        const activeUserObj = currentUser.user || currentUser;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Reveal instructor navigation links
+            document.querySelectorAll('.role-instructor').forEach(el => el.style.display = 'inline-block');
+            
+            setupFooter();
+
+            // Handle button click & Enter key trigger
+            document.getElementById("searchBtn").addEventListener("click", fetchRoster);
+            document.getElementById("sectionId").addEventListener("keypress", (e) => {
+                if (e.key === "Enter") fetchRoster();
+            });
+        });
+
+        function setupFooter() {
+            const userInfoEl = document.getElementById('userInfo');
+            const userEmail = activeUserObj.email || 'Active Session';
+            userInfoEl.innerHTML = `Signed in as: <strong>${userEmail}</strong> (Instructor) — <a style="color:var(--muted);text-decoration:underline;cursor:pointer" id="logoutBtn">Sign out</a>`;
+
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        }
+
+        async function fetchRoster() {
+            const id = document.getElementById("sectionId").value.trim();
+            const tbody = document.getElementById("rosterBody");
+            const countEl = document.getElementById("rosterCount");
+
+            if (!id) {
+                tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text">Please enter a Section ID to perform a search.</td></tr>`;
+                countEl.textContent = "";
+                return;
+            }
+
+            tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text">Loading roster details...</td></tr>`;
+            countEl.textContent = "";
+
+            try {
+                const res = await fetch(`/api/instructor/roster/${id}`);
+                if (!res.ok) throw new Error("Failed to load roster.");
+
+                const roster = await res.json();
+
+                if (!roster || !roster.length) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text">No students currently enrolled in Section #${id}.</td></tr>`;
+                    countEl.textContent = "0 Enrolled";
+                    return;
+                }
+
+                tbody.innerHTML = roster.map(r => {
+                    const studentId = r.student_id || r.id || '---';
+                    const firstName = r.first_name || '';
+                    const lastName = r.last_name || '';
+                    const fullName = `${firstName} ${lastName}`.trim() || 'Unknown Student';
+                    const email = r.email || '---';
+                    const status = r.status || 'Enrolled';
+
+                    return `
+                        <tr>
+                            <td><strong>#${studentId}</strong></td>
+                            <td>${fullName}</td>
+                            <td>${email}</td>
+                            <td><span class="status-badge">${status}</span></td>
+                        </tr>
+                    `;
+                }).join('');
+
+                countEl.textContent = `${roster.length} Enrolled Student${roster.length > 1 ? 's' : ''}`;
+
+            } catch (err) {
+                console.error("Error loading roster:", err);
+                tbody.innerHTML = `<tr><td colspan="4" class="placeholder-text" style="color: var(--error-text);">Error fetching section roster. Please check the ID and try again.</td></tr>`;
+                countEl.textContent = "";
+            }
+        }
+    </script>
+</body>
+</html>

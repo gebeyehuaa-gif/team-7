@@ -1,281 +1,584 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enrollment Report</title>
-<!--links the page with styles.css-->
-<link rel="stylesheet" href="styles updated.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrollment Report — Course Portal</title>
+
+    <!-- 1. IMMEDIATE GUARD SCRIPT: Corrected payload extraction -->
+    <script>
+        (function() {
+            const rawUser = localStorage.getItem('currentUser');
+            if (!rawUser) { window.location.href = 'login.html'; return; }
+            
+            const user = JSON.parse(rawUser);
+            // Handle both nested { user: {...} } and flat user objects
+            const activeUser = user.user || user;
+            const roleId = Number(activeUser.roleId || activeUser.role_id);
+            
+            // Only Admin (roleId === 3) can access the Enrollment Report
+            if (roleId !== 3) {
+                alert("Access Denied: Only Administrator users can view the Enrollment Report.");
+                window.location.href = 'Homes-screen.html';
+            }
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --accent: #003366;
+            --secondary: #0055a5;
+            --muted: #666666;
+            --border: #ddd;
+            --success-bg: #def7ec;
+            --success-text: #03543f;
+            --warning-bg: #fdf6b2;
+            --warning-text: #723b13;
+            --error-bg: #fde8e8;
+            --error-text: #9b1c1c;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg);
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Brand & Header */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .brand-text p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover {
+            background: #f0f4f8;
+            color: var(--accent);
+        }
+
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .role-student, .role-instructor, .role-admin {
+            display: none; /* Controlled via JS */
+        }
+
+        /* Card Container */
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 16px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* Filter Controls Grid */
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .filter-item label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .filter-item input, .filter-item select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: white;
+            outline: none;
+        }
+
+        .filter-item input:focus, .filter-item select:focus {
+            border-color: var(--secondary);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            appearance: none;
+            border: 0;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            background: var(--accent);
+            font-size: 0.9rem;
+            transition: background 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-secondary {
+            appearance: none;
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #333;
+            background: #fff;
+            font-size: 0.9rem;
+            transition: background 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4f8;
+        }
+
+        /* Metrics Summary Bar */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: var(--card);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .metric-card .label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-card .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        th {
+            color: var(--accent);
+            font-weight: 700;
+            background: #f9fafb;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-open {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+        }
+
+        .status-nearly {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .status-full {
+            background-color: var(--error-bg);
+            color: var(--error-text);
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: var(--muted);
+            padding: 24px 16px;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<!--page header for the enrollment report-->
-<header>
-<h1>Course Portal</h1>
-</header>
-<!--hyperlinks for user to click on to go to other pages-->
-<nav>
-<a href="Homes-screen.html">Home</a>
-<a href="coursesearch.html">Course Search</a>
-<a href="studentregistration%20updated.html">Student Registration</a>
-<a href="instructorschedule.html">Instructor Schedule</a>
-<a href="sessionenrollment.html">Enrollment</a>
-<a href="enrollmentreport.html">Reports</a>
-</nav>
-<!--main container-->
-<div class="container">
-<!--enrollment report information-->
-<div class="login-box">
-<!--displays the page title-->
-<h2>Enrollment Report</h2>
-<!--shows that only authorized users are allowed to access this page-->
-<p><strong>Authorized Registrar Users Only</strong></p>
-<p>Use the report below to review current enrollment totals, course capacity, and available seats.</p>
-</div>
-<!--report filters-->
-<div class="panel">
-<div class="form-row">
-<div>
-<label for="departmentFilter">Department</label>
-<select id="departmentFilter">
-<option value="all">All Departments</option>
-<option value="Information Systems">Information Systems</option>
-<option value="Marketing">Marketing</option>
-</select>
-</div>
-<div>
-<label for="modalityFilter">Modality</label>
-<select id="modalityFilter">
-<option value="all">All Modalities</option>
-<option value="In Person">In Person</option>
-<option value="Hybrid">Hybrid</option>
-<option value="Online">Online</option>
-</select>
-</div>
-<div>
-<label for="searchInput">Search</label>
-<input id="searchInput" type="text" placeholder="Course, title, or instructor">
-</div>
-</div>
-<div class="button-row">
-<button type="button" id="downloadBtn">Download CSV</button>
-<button type="button" class="secondary" id="printBtn">Print Report</button>
-</div>
-</div>
-<!--report summary information-->
-<div class="student-summary">
-<div class="summary-item">
-<span class="summary-label">Sections Shown</span>
-<span class="summary-value" id="sectionsShown">0</span>
-</div>
-<div class="summary-item">
-<span class="summary-label">Total Enrollment</span>
-<span class="summary-value" id="totalEnrollment">0</span>
-</div>
-<div class="summary-item">
-<span class="summary-label">Total Capacity</span>
-<span class="summary-value" id="totalCapacity">0</span>
-</div>
-<div class="summary-item">
-<span class="summary-label">Remaining Seats</span>
-<span class="summary-value" id="remainingSeats">0</span>
-</div>
-</div>
-<!--Table showing enrollment report information-->
-<table id="reportTable">
-<!--The table headings-->
-<thead>
-<tr>
-<th>Course</th>
-<th>Title</th>
-<th>Instructor</th>
-<th>Department</th>
-<th>Modality</th>
-<th>Enrollment</th>
-<th>Capacity</th>
-<th>Open Seats</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-<p id="noResults" class="message error">No course sections match the selected filters.</p>
-</div>
+    <main class="container">
+        <!-- Brand Header -->
+        <div class="brand">
+            <div class="logo">CP</div>
+            <div class="brand-text">
+                <h1>Enrollment Report</h1>
+                <p>Track course capacities, current enrollment, and remaining availability</p>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav>
+            <a href="Homes-screen.html">Home</a>
+            <a href="coursesearch.html">Course Catalog</a>
+            <a href="courseportal.html" class="role-admin">Admin Portal</a>
+            <a href="usermanagement.html" class="role-admin">User Controls</a>
+            <a href="enrollmentreports.html" class="role-admin active">Enrollment Report</a>
+        </nav>
+
+        <!-- Filter Controls Card -->
+        <section class="card">
+            <h2>Report Filters & Actions</h2>
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label for="departmentFilter">Department</label>
+                    <select id="departmentFilter">
+                        <option value="all">All Departments</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="modalityFilter">Modality</label>
+                    <select id="modalityFilter">
+                        <option value="all">All Modalities</option>
+                        <option value="In Person">In Person</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Online">Online</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label for="searchInput">Search Query</label>
+                    <input id="searchInput" type="text" placeholder="Course code, title, or instructor">
+                </div>
+            </div>
+            <div class="button-row">
+                <button type="button" id="downloadBtn" class="btn-primary">Download CSV</button>
+                <button type="button" id="printBtn" class="btn-secondary">Print Report</button>
+            </div>
+        </section>
+
+        <!-- Metrics Summary -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="label">Sections Shown</span>
+                <span class="value" id="sectionsShown">0</span>
+            </div>
+            <div class="metric-card">
+                <span class="label">Total Enrollment</span>
+                <span class="value" id="totalEnrollment">0</span>
+            </div>
+            <div class="metric-card">
+                <span class="label">Total Capacity</span>
+                <span class="value" id="totalCapacity">0</span>
+            </div>
+            <div class="metric-card">
+                <span class="label">Open Seats</span>
+                <span class="value" id="remainingSeats">0</span>
+            </div>
+        </div>
+
+        <!-- Report Results Card -->
+        <section class="card">
+            <h2>Course Enrollment Breakdown</h2>
+            <table id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Title</th>
+                        <th>Instructor</th>
+                        <th>Dept</th>
+                        <th>Modality</th>
+                        <th>Enrolled</th>
+                        <th>Cap</th>
+                        <th>Open</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="9" class="placeholder-text">Loading report data...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="noResults" class="placeholder-text" style="display:none; color: var(--error-text);">No course sections match the selected filters.</p>
+        </section>
+
+        <footer>
+            <span id="userInfo">Checking active session...</span>
+        </footer>
+    </main>
 
 <script>
-const sections = [
-{
-course: "INFO 465",
-title: "Projects in Information Systems",
-instructor: "Professor McGarry",
-department: "Information Systems",
-modality: "In Person",
-enrollment: 24,
-capacity: 30
-},
-{
-course: "INFO 350",
-title: "Business Systems Analysis",
-instructor: "Marcus Reed",
-department: "Information Systems",
-modality: "Hybrid",
-enrollment: 22,
-capacity: 25
-},
-{
-course: "INFO 320",
-title: "Cybersecurity Fundamentals",
-instructor: "Priya Shah",
-department: "Information Systems",
-modality: "Online",
-enrollment: 38,
-capacity: 40
-},
-{
-course: "MKTG 302",
-title: "Consumer Behavior",
-instructor: "Danielle Brooks",
-department: "Marketing",
-modality: "In Person",
-enrollment: 35,
-capacity: 35
-},
-{
-course: "MKTG 410",
-title: "Digital Marketing Strategy",
-instructor: "Victor Santos",
-department: "Marketing",
-modality: "Hybrid",
-enrollment: 26,
-capacity: 28
-}
-];
+let sections = [];
 
 const departmentFilter = document.getElementById("departmentFilter");
 const modalityFilter = document.getElementById("modalityFilter");
 const searchInput = document.getElementById("searchInput");
-const tableBody = document.querySelector("#reportTable tbody");
+const tableBody = document.getElementById("tableBody");
 const noResults = document.getElementById("noResults");
 
-function getFilteredSections() {
-const department = departmentFilter.value;
-const modality = modalityFilter.value;
-const search = searchInput.value.trim().toLowerCase();
+document.addEventListener("DOMContentLoaded", () => {
+    // Reveal admin navigation items
+    document.querySelectorAll('.role-admin').forEach(el => el.style.display = 'inline-block');
 
-return sections.filter(function(section) {
-const matchesDepartment = department === "all" || section.department === department;
-const matchesModality = modality === "all" || section.modality === modality;
-const searchableText = (section.course + " " + section.title + " " + section.instructor).toLowerCase();
-const matchesSearch = search === "" || searchableText.includes(search);
-
-return matchesDepartment && matchesModality && matchesSearch;
+    setupFooter();
+    fetchReportData();
 });
+
+function setupFooter() {
+    const rawUser = localStorage.getItem('currentUser');
+    const user = rawUser ? JSON.parse(rawUser) : {};
+    const activeUser = user.user || user;
+    const userEmail = activeUser.email || 'Active Session';
+
+    const userInfoEl = document.getElementById('userInfo');
+    userInfoEl.innerHTML = `Signed in as: <strong>${userEmail}</strong> (Administrator) — <a style="color:var(--muted);text-decoration:underline;cursor:pointer" id="logoutBtn">Sign out</a>`;
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    });
+}
+
+// Fetch active report data from backend
+async function fetchReportData() {
+  try {
+    const response = await fetch('/api/courses');
+    if (!response.ok) throw new Error("Failed to load courses");
+    const rawData = await response.json();
+
+    // Map DB fields to application structures
+    sections = rawData.map(c => ({
+      course: c.course_code || "N/A",
+      title: c.course_name || "Untitled Course",
+      instructor: c.instructor_name || c.instructor || "TBD",
+      department: c.department_name || "General",
+      modality: c.modality || "In Person",
+      enrollment: Number(c.enrolled_count || 0),
+      capacity: Number(c.capacity || 0)
+    }));
+
+    populateDepartmentDropdown();
+    renderReport();
+  } catch (err) {
+    console.error("Error fetching report data:", err);
+    tableBody.innerHTML = `<tr><td colspan="9" class="placeholder-text" style="color: var(--error-text);">Failed to connect to backend database.</td></tr>`;
+  }
+}
+
+function populateDepartmentDropdown() {
+  const departments = [...new Set(sections.map(s => s.department))].filter(Boolean);
+  
+  departmentFilter.innerHTML = '<option value="all">All Departments</option>';
+  departments.forEach(dept => {
+    const option = document.createElement("option");
+    option.value = dept;
+    option.textContent = dept;
+    departmentFilter.appendChild(option);
+  });
+}
+
+function getFilteredSections() {
+  const department = departmentFilter.value;
+  const modality = modalityFilter.value;
+  const search = searchInput.value.trim().toLowerCase();
+
+  return sections.filter(function(section) {
+    const matchesDepartment = department === "all" || section.department === department;
+    const matchesModality = modality === "all" || section.modality === modality;
+    const searchableText = (section.course + " " + section.title + " " + section.instructor).toLowerCase();
+    const matchesSearch = search === "" || searchableText.includes(search);
+
+    return matchesDepartment && matchesModality && matchesSearch;
+  });
 }
 
 function renderReport() {
-const filteredSections = getFilteredSections();
+  const filteredSections = getFilteredSections();
+  tableBody.innerHTML = "";
 
-tableBody.innerHTML = "";
+  filteredSections.forEach(function(section) {
+    const openSeats = section.capacity - section.enrollment;
+    let statusClass = "status-open";
+    let statusText = "Open";
 
-filteredSections.forEach(function(section) {
-const openSeats = section.capacity - section.enrollment;
-let status = "Open";
+    if (openSeats <= 0) {
+      statusClass = "status-full";
+      statusText = "Full";
+    } else if (openSeats <= 5) {
+      statusClass = "status-nearly";
+      statusText = "Nearly Full";
+    }
 
-if (openSeats === 0) {
-status = "Full";
-} else if (openSeats <= 5) {
-status = "Nearly Full";
-}
+    const row = document.createElement("tr");
 
-const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><strong>${section.course}</strong></td>
+      <td>${section.title}</td>
+      <td>${section.instructor}</td>
+      <td>${section.department}</td>
+      <td>${section.modality}</td>
+      <td>${section.enrollment}</td>
+      <td>${section.capacity}</td>
+      <td>${openSeats < 0 ? 0 : openSeats}</td>
+      <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+    `;
 
-row.innerHTML = `
-<td>${section.course}</td>
-<td>${section.title}</td>
-<td>${section.instructor}</td>
-<td>${section.department}</td>
-<td>${section.modality}</td>
-<td>${section.enrollment}</td>
-<td>${section.capacity}</td>
-<td>${openSeats}</td>
-<td><span class="status ${status === "Open" ? "enrolled" : "waitlist"}">${status}</span></td>
-`;
+    tableBody.appendChild(row);
+  });
 
-tableBody.appendChild(row);
-});
+  const totalEnrollment = filteredSections.reduce((total, section) => total + section.enrollment, 0);
+  const totalCapacity = filteredSections.reduce((total, section) => total + section.capacity, 0);
 
-const totalEnrollment = filteredSections.reduce(function(total, section) {
-return total + section.enrollment;
-}, 0);
+  document.getElementById("sectionsShown").textContent = filteredSections.length;
+  document.getElementById("totalEnrollment").textContent = totalEnrollment;
+  document.getElementById("totalCapacity").textContent = totalCapacity;
+  document.getElementById("remainingSeats").textContent = Math.max(0, totalCapacity - totalEnrollment);
 
-const totalCapacity = filteredSections.reduce(function(total, section) {
-return total + section.capacity;
-}, 0);
-
-document.getElementById("sectionsShown").textContent = filteredSections.length;
-document.getElementById("totalEnrollment").textContent = totalEnrollment;
-document.getElementById("totalCapacity").textContent = totalCapacity;
-document.getElementById("remainingSeats").textContent = totalCapacity - totalEnrollment;
-
-if (filteredSections.length === 0) {
-noResults.style.display = "block";
-} else {
-noResults.style.display = "none";
-}
+  if (filteredSections.length === 0) {
+    noResults.style.display = "block";
+  } else {
+    noResults.style.display = "none";
+  }
 }
 
 function downloadCsv() {
-const filteredSections = getFilteredSections();
+  const filteredSections = getFilteredSections();
 
-const headers = [
-"Course",
-"Title",
-"Instructor",
-"Department",
-"Modality",
-"Enrollment",
-"Capacity",
-"Open Seats",
-"Status"
-];
-  
-const rows = filteredSections.map(function(section) {
-const openSeats = section.capacity - section.enrollment;
-let status = "Open";
+  const headers = ["Course", "Title", "Instructor", "Department", "Modality", "Enrollment", "Capacity", "Open Seats", "Status"];
+    
+  const rows = filteredSections.map(function(section) {
+    const openSeats = section.capacity - section.enrollment;
+    let status = "Open";
 
-if (openSeats === 0) {
-status = "Full";
-} else if (openSeats <= 5) {
-status = "Nearly Full";
-}
+    if (openSeats <= 0) status = "Full";
+    else if (openSeats <= 5) status = "Nearly Full";
 
-return [
-section.course,
-section.title,
-section.instructor,
-section.department,
-section.modality,
-section.enrollment,
-section.capacity,
-openSeats,
-status
-];
-});
+    return [
+      section.course,
+      section.title,
+      section.instructor,
+      section.department,
+      section.modality,
+      section.enrollment,
+      section.capacity,
+      openSeats < 0 ? 0 : openSeats,
+      status
+    ];
+  });
 
-const csv = [headers].concat(rows).map(function(row) {
-return row.map(function(value) {
-return '"' + String(value).replaceAll('"', '""') + '"';
-}).join(",");
-}).join("\n");
+  const csv = [headers].concat(rows).map(function(row) {
+    return row.map(function(value) {
+      return '"' + String(value).replaceAll('"', '""') + '"';
+    }).join(",");
+  }).join("\n");
 
-const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-const link = document.createElement("a");
+  const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+  const link = document.createElement("a");
 
-link.href = URL.createObjectURL(blob);
-link.download = "enrollment-report.csv";
-link.click();
+  link.href = URL.createObjectURL(blob);
+  link.download = "enrollment-report.csv";
+  link.click();
 
-URL.revokeObjectURL(link.href);
+  URL.revokeObjectURL(link.href);
 }
 
 departmentFilter.addEventListener("change", renderReport);
@@ -283,11 +586,8 @@ modalityFilter.addEventListener("change", renderReport);
 searchInput.addEventListener("input", renderReport);
 document.getElementById("downloadBtn").addEventListener("click", downloadCsv);
 document.getElementById("printBtn").addEventListener("click", function() {
-window.print();
+  window.print();
 });
-
-renderReport();
 </script>
-
 </body>
 </html>

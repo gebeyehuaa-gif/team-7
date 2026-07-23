@@ -11,7 +11,7 @@ VALUES
   (2, 'Marketing');
 
 -- Courses: at least 5 courses, each tied to a department
-INSERT INTO Courses (course_id, department_id, course_code, course_title, credits)
+INSERT INTO Courses (course_id, department_id, course_code, course_name, credits)
 VALUES
   (1, 1, 'INFO 465', 'Database Design and Implementation', 3),
   (2, 1, 'INFO 350', 'Business Systems Analysis', 3),

@@ -3,113 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Search</title>
-    <link rel="stylesheet" href="styles updated.css">
+    <title>Course Catalog — Course Portal</title>
+    
+    <!-- ACCESS CONTROL GUARD: Redirect if not logged in -->
+    <script>
+        (function() {
+            const rawUser = localStorage.getItem('currentUser');
+            if (!rawUser) window.location.href = 'login.html';
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --accent: #003366;
+            --secondary: #0055a5;
+            --muted: #666666;
+            --border: #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--bg);
+            color: #333;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 16px;
+        }
+
+        /* Home Screen Style Header & Brand */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .brand-text p {
+            margin: 2px 0 0;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: var(--card);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        nav a:hover {
+            background: #f0f4f8;
+            color: var(--accent);
+        }
+
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .role-student, .role-instructor, .role-admin {
+            display: none; /* Controlled by JS */
+        }
+
+        /* Cards Layout */
+        .card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
+
+        /* Search Form Layout */
+        .search-box {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--secondary);
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            background: var(--accent);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--accent);
+            font-weight: 700;
+            background: #f9fafb;
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: var(--muted);
+            padding: 32px 16px;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
-
-    <header>
-        <h1>Course Portal</h1>
-    </header>
-
-    <nav>
-        <a href="Homes-screen.html">Home</a>
-        <a href="coursesearch.html">Course Search</a>
-        <a href="studentregistration%20updated.html">Student Registration</a>
-        <a href="instructorschedule.html">Instructor Schedule</a>
-        <a href="sessionenrollment.html">Enrollment</a>
-        <a href="enrollmentreports.html">Reports</a>
-    </nav>
-
-    <div class="container">
-
-        <div class="login-box">
-            <h2>Search for Courses</h2>
-            <p>
-                Use this page to search for available courses by department, course number, or instructor.
-            </p>
-
-            <label for="department">Department</label>
-            <input type="text" id="department" name="department" placeholder="Example: INFO">
-
-            <label for="courseNumber">Course Number</label>
-            <input type="text" id="courseNumber" name="courseNumber" placeholder="Example: 465">
-
-            <label for="instructor">Instructor</label>
-            <input type="text" id="instructor" name="instructor" placeholder="Example: McGarry">
-
-            <button type="button">Search</button>
-            <button type="reset">Clear</button>
+    <main class="container">
+        <!-- Header Brand Section -->
+        <div class="brand">
+            <div class="logo">CP</div>
+            <div class="brand-text">
+                <h1>Course Catalog & Search</h1>
+                <p>Lookup available courses and section details</p>
+            </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Course</th>
-                    <th>Course Title</th>
-                    <th>Credit Hours</th>
-                    <th>Instructor</th>
-                    <th>Prerequisites</th>
-                    <th>Modality</th>
-                    <th>Max Enrollment</th>
-                </tr>
-            </thead>
+        <!-- Role-Based Navigation Bar -->
+        <nav>
+            <a href="Homes-screen.html">Home</a>
+            <a href="coursesearch.html" class="active">Course Catalog</a>
+            <a href="studentregistration.html" class="role-student">Register & Overrides</a>
+            <a href="mycourses.html" class="role-student">My Schedule</a>
+            <a href="instructorschedule.html" class="role-instructor">Instructor Schedule</a>
+            <a href="classroster.html" class="role-instructor">Class Roster</a>
+            <a href="courseportal.html" class="role-admin">Admin Portal</a>
+            <a href="usermanagement.html" class="role-admin">User Controls</a>
+            <a href="enrollmentreports.html" class="role-admin">Enrollment Report</a>
+        </nav>
 
-            <tbody>
-                <tr>
-                    <td>INFO 465</td>
-                    <td>Projects in Information Systems</td>
-                    <td>3</td>
-                    <td>Dr. McGarry</td>
-                    <td>INFO 364, INFO 370</td>
-                    <td>Online</td>
-                    <td>30</td>
-                </tr>
+        <!-- Search Panel -->
+        <section class="card">
+            <h2>Search Catalog</h2>
+            <form id="searchForm" class="search-box">
+                <div class="form-group">
+                    <label for="searchInput">Course Search</label>
+                    <input type="text" id="searchInput" placeholder="Type a course code (e.g. CS101), title, or department...">
+                </div>
+                <button type="submit" class="btn">Search</button>
+            </form>
+        </section>
 
-                <tr>
-                    <td>INFO 364</td>
-                    <td>Database Systems</td>
-                    <td>3</td>
-                    <td>Dr. Smith</td>
-                    <td>INFO 350</td>
-                    <td>Hybrid</td>
-                    <td>35</td>
-                </tr>
+        <!-- Results Table Panel -->
+        <section class="card">
+            <h2>Search Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Title</th>
+                        <th>Department</th>
+                        <th>Credits</th>
+                        <th>Seats Available</th>
+                    </tr>
+                </thead>
+                <tbody id="coursesTable">
+                    <!-- Default state: Prompt user to search first -->
+                    <tr>
+                        <td colspan="5" class="placeholder-text">
+                            🔍 Please enter a search query above to browse matching courses.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-                <tr>
-                    <td>INFO 320</td>
-                    <td>Business Programming</td>
-                    <td>3</td>
-                    <td>Professor Johnson</td>
-                    <td>INFO 202</td>
-                    <td>In Person</td>
-                    <td>40</td>
-                </tr>
+        <footer>
+            <span id="userInfo">Checking active session...</span>
+        </footer>
+    </main>
 
-                <tr>
-                    <td>BUSN 323</td>
-                    <td>Legal Environment of Business</td>
-                    <td>3</td>
-                    <td>Professor Carter</td>
-                    <td>None</td>
-                    <td>Online</td>
-                    <td>45</td>
-                </tr>
+    <script>
+        let allCourses = [];
 
-                <tr>
-                    <td>MATH 211</td>
-                    <td>Mathematical Structures</td>
-                    <td>3</td>
-                    <td>Dr. Williams</td>
-                    <td>MATH 151</td>
-                    <td>In Person</td>
-                    <td>32</td>
-                </tr>
-            </tbody>
-        </table>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const rawUser = localStorage.getItem('currentUser');
+            const user = rawUser ? JSON.parse(rawUser) : {};
+            const activeUser = user.user || user;
+            const roleId = Number(activeUser.roleId || activeUser.role_id);
 
-    </div>
+            // Display role-specific navigation tabs
+            if (roleId === 1) document.querySelectorAll('.role-student').forEach(el => el.style.display = 'inline-block');
+            else if (roleId === 2) document.querySelectorAll('.role-instructor').forEach(el => el.style.display = 'inline-block');
+            else if (roleId === 3) document.querySelectorAll('.role-admin').forEach(el => el.style.display = 'inline-block');
 
+            // Set up footer session info
+            const userInfoEl = document.getElementById('userInfo');
+            const userEmail = activeUser.email || 'Active Session';
+            const roleName = roleId === 3 ? 'Administrator' : (roleId === 2 ? 'Instructor' : 'Student');
+            userInfoEl.innerHTML = `Signed in as: <strong>${userEmail}</strong> (${roleName}) — <a style="color:var(--muted);text-decoration:underline;cursor:pointer" id="logoutBtn">Sign out</a>`;
+
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+
+            // Pre-fetch courses quietly in background so searches are instant
+            await loadCourseData();
+
+            // Handle manual search form submit
+            document.getElementById("searchForm").addEventListener("submit", (e) => {
+                e.preventDefault();
+                performSearch();
+            });
+
+            // Optional: Live search as user types
+            document.getElementById("searchInput").addEventListener("input", performSearch);
+        });
+
+        // Load catalog data into memory without rendering immediately
+        async function loadCourseData() {
+            try {
+                const res = await fetch('/api/courses');
+                if (res.ok) {
+                    allCourses = await res.json();
+                }
+            } catch (err) {
+                console.error("Error loading courses:", err);
+            }
+        }
+
+        // Perform filter and render search results
+        function performSearch() {
+            const query = document.getElementById("searchInput").value.toLowerCase().trim();
+            const tbody = document.getElementById("coursesTable");
+
+            // Don't display anything if search query is empty
+            if (!query) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="placeholder-text">
+                            🔍 Please enter a search query above to browse matching courses.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const filtered = allCourses.filter(c => {
+                const code = (c.course_code || '').toLowerCase();
+                const name = (c.course_name || '').toLowerCase();
+                const dept = (c.department_name || '').toLowerCase();
+
+                return code.includes(query) || name.includes(query) || dept.includes(query);
+            });
+
+            renderTable(filtered);
+        }
+
+        // Render matching rows into HTML table
+        function renderTable(courses) {
+            const tbody = document.getElementById("coursesTable");
+
+            if (!courses || courses.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="placeholder-text">
+                            No courses found matching your query.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = courses.map(c => {
+                const availableSeats = (c.capacity || 0) - (c.enrolled_count || 0);
+                const dept = c.department_name || 'General';
+                
+                return `
+                    <tr>
+                        <td><strong>${c.course_code}</strong></td>
+                        <td>${c.course_name}</td>
+                        <td>${dept}</td>
+                        <td>${c.credits}</td>
+                        <td>${availableSeats} / ${c.capacity}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
 </body>
 </html>

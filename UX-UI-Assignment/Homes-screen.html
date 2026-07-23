@@ -1,73 +1,292 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width,initial-scale=1" />
-	<title>Home — Course Portal</title>
-	<style>
-		:root{--bg:#f4f6f9;--card:#ffffff;--accent:#003366;--secondary:#0055a5;--muted:#666666;--border:#ddd}
-		*{box-sizing:border-box;font-family:Arial,sans-serif}
-		html,body{height:100%;margin:0;background-color:var(--bg);color:#333}
-		.container{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px}
-		.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-		.logo{width:56px;height:56px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:white}
-		h1{margin:0;font-size:1.6rem;color:var(--accent)}
-		p.lead{margin:6px 0 22px;color:var(--muted)}
-		.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;width:100%;max-width:920px}
-		.card{background:var(--card);padding:18px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);border:1px solid var(--border)}
-		.card h2{margin:0 0 8px;font-size:1.05rem;color:var(--accent)}
-		.card p{margin:0 0 14px;color:var(--muted);font-size:0.95rem}
-		.actions{display:flex;gap:10px}
-		.btn{appearance:none;border:0;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:600;color:white;background:var(--accent);text-decoration:none}
-		.btn:hover{background:var(--secondary)}
-		.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
-		.btn.ghost:hover{background:#f0f0f0}
-		.login-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;max-width:920px;background:var(--card);padding:16px 18px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1);border:1px solid var(--border);margin-bottom:18px}
-		.login-banner p{margin:0;color:var(--muted);font-weight:600}
-		.login-banner .btn{padding:10px 16px}
-		footer{margin-top:28px;color:var(--muted);font-size:0.9rem}
-		@media (max-width:420px){.brand h1{font-size:1.2rem}.login-banner{flex-direction:column;align-items:flex-start}}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home — Course Portal</title>
+
+    <!-- ACCESS CONTROL GUARD: Redirect if not logged in -->
+    <script>
+        (function() {
+            const rawUser = localStorage.getItem('currentUser');
+            if (!rawUser) window.location.href = 'login.html';
+        })();
+    </script>
+
+    <style>
+        :root {
+            --bg: #f4f6f9;
+            --card: #ffffff;
+            --accent: #003366;
+            --secondary: #0055a5;
+            --muted: #666666;
+            --border: #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background-color: var(--bg);
+            color: #333;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.6rem;
+            color: var(--accent);
+        }
+
+        p.lead {
+            margin: 6px 0 22px;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            width: 100%;
+            max-width: 920px;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 1.05rem;
+            color: var(--accent);
+        }
+
+        .card p {
+            margin: 0 0 14px;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+
+        .btn {
+            appearance: none;
+            border: 0;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            background: var(--accent);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+        }
+
+        footer {
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* Hides role-restricted cards until JS validates session role */
+        .role-student,
+        .role-instructor,
+        .role-admin {
+            display: none;
+        }
+
+        @media (max-width: 420px) {
+            .brand h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-	<main class="container">
-		<div class="brand">
-			<div class="logo">CP</div>
-			<div>
-				<h1>Course Portal</h1>
-			</div>
-		</div>
+    <main class="container">
+        <div class="brand">
+            <div class="logo">CP</div>
+            <div>
+                <h1>Course Portal Dashboard</h1>
+            </div>
+        </div>
 
-		<div class="grid">
-			<section class="card" id="course-search">
-				<h2>Course Search</h2>
-				<p>Find courses by subject, code, instructor, or time. Filter and sort results to plan your semester.</p>
-				<div class="actions">
-					<a class="btn" href="coursesearch.html">Open Course Search</a>
-					<a class="btn ghost" href="/coursesearch.html/help">Help</a>
-				</div>
-			</section>
+        <p class="lead" id="welcomeBanner">Welcome back!</p>
 
-			<section class="card" id="student-registration">
-				<h2>Student Registration</h2>
-				<p>Register for classes, manage your enrollment, and view waitlist status on your account.</p>
-				<div class="actions">
-					<a class="btn" href="studentregistration updated.html">Go to Registration</a>
-					<a class="btn ghost" href="studentregistration updated.html">FAQ</a>
-				</div>
-			</section>
+        <div class="grid">
+            <!-- Common Card (Accessible to All Roles) -->
+            <section class="card" id="course-search">
+                <div>
+                    <h2>Course Catalog</h2>
+                    <p>Find courses by subject, code, or instructor. Check live seating capacities and available sections.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="coursesearch.html">Open Catalog</a>
+                </div>
+            </section>
 
-			<section class="card" id="instructor-schedules">
-				<h2>Instructor Schedules</h2>
-				<p>View and manage instructor teaching schedules, office hours, and assigned rooms.</p>
-				<div class="actions">
-					<a class="btn" href="instructorschedule.html">View Schedules</a>
-					<a class="btn ghost" href="/instructorschedule.html/edit">Manage</a>
-				</div>
-			</section>
-		</div>
+            <!-- Student Cards -->
+            <section class="card role-student" id="student-registration">
+                <div>
+                    <h2>Student Registration</h2>
+                    <p>Register for classes, manage your schedule, or request advisor overrides for full sections.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="studentregistration.html">Go to Registration</a>
+                </div>
+            </section>
 
-		<footer>Signed in as: <strong>Student</strong> — <a style="color:var(--muted);text-decoration:underline" href="login.html">Sign in</a></footer>
-	</main>
+            <section class="card role-student" id="student-schedule">
+                <div>
+                    <h2>My Schedule</h2>
+                    <p>View your currently registered courses, check class times, or drop enrolled sessions.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="mycourses.html">View Schedule</a>
+                </div>
+            </section>
+
+            <!-- Instructor Cards -->
+            <section class="card role-instructor" id="instructor-schedules">
+                <div>
+                    <h2>Instructor Schedule</h2>
+                    <p>View teaching schedules, course sections, office hours, and assigned classrooms.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="instructorschedule.html">View Schedule</a>
+                </div>
+            </section>
+
+            <section class="card role-instructor" id="class-roster">
+                <div>
+                    <h2>Class Roster</h2>
+                    <p>Look up enrolled student lists and section capacities for your assigned courses.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="classroster.html">View Roster</a>
+                </div>
+            </section>
+
+            <!-- Admin Cards -->
+            <section class="card role-admin" id="admin-portal">
+                <div>
+                    <h2>Admin Portal</h2>
+                    <p>Create new course offerings, modify course descriptions, and oversee academic sections.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="courseportal.html">Open Admin Portal</a>
+                </div>
+            </section>
+
+            <section class="card role-admin" id="user-controls">
+                <div>
+                    <h2>User Controls</h2>
+                    <p>Manage user accounts, assign user roles, and adjust administrative access privileges.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="usermanagement.html">User Controls</a>
+                </div>
+            </section>
+
+            <section class="card role-admin" id="enrollment-report">
+                <div>
+                    <h2>Enrollment Report</h2>
+                    <p>Review current enrollment totals, course capacities, open seat availability, and export CSV reports.</p>
+                </div>
+                <div class="actions">
+                    <a class="btn" href="enrollmentreports.html">View Report</a>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <span id="userInfo">Checking active session...</span>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const rawUser = localStorage.getItem('currentUser');
+            const user = rawUser ? JSON.parse(rawUser) : {};
+            const activeUser = user.user || user;
+            const roleId = Number(activeUser.roleId || activeUser.role_id);
+
+            // Display customized welcome message
+            const firstName = activeUser.first_name || activeUser.name || 'User';
+            document.getElementById("welcomeBanner").textContent = `Welcome back, ${firstName}! Select an option below to get started.`;
+
+            // Display account profile & role label in footer
+            const userInfoEl = document.getElementById('userInfo');
+            const userEmail = activeUser.email || 'Active Session';
+            const roleName = roleId === 3 ? 'Administrator' : (roleId === 2 ? 'Instructor' : 'Student');
+
+            userInfoEl.innerHTML = `Signed in as: <strong>${userEmail}</strong> (${roleName}) — <a style="color:var(--muted);text-decoration:underline;cursor:pointer" id="logoutBtn">Sign out</a>`;
+
+            // Display role-specific cards only
+            if (roleId === 1) {
+                document.querySelectorAll('.role-student').forEach(el => el.style.display = 'flex');
+            } else if (roleId === 2) {
+                document.querySelectorAll('.role-instructor').forEach(el => el.style.display = 'flex');
+            } else if (roleId === 3) {
+                document.querySelectorAll('.role-admin').forEach(el => el.style.display = 'flex');
+            }
+
+            // Logout action listener
+            document.getElementById("logoutBtn").addEventListener("click", () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
 </body>
 </html>
